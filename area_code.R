@@ -8,7 +8,7 @@
 #
 ##########################################################################
 
-setwd("/Users/kkung/Documents/MA 578/Project")
+#setwd("/Users/kkung/Documents/MA 578/Project")
 library(ncdf4)
 weather<-nc_open("pnwrain.50km.daily.4994.nc")
 #details about the dataset
