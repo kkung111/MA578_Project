@@ -1,7 +1,9 @@
 
 
 input <- sample(c(0,1),365,replace = T, prob = c(.4,.6))
+sample <- weatherDat[7,5,1:365]
 
+CalculateBounds <- function(data) {
 best_score <- -1
 best_loc <- c(-1,-1)
 for(i in seq(1,363)) {
@@ -17,3 +19,6 @@ for(i in seq(1,363)) {
     }
   }
 }
+}
+bounds <- CalculateBounds(sample)
+bounds
