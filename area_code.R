@@ -26,6 +26,16 @@ areaGroup[c(1:6),c(15:17),]<-1
 areaGroup[is.na(areaGroup)]<-2
 t(areaGroup[,,1])
 
+#more fine grid for area
+areaGrid<-array(NA, dim = dim(weatherDat))
+gridarea<-1
+for(i in 1:dim(weatherDat)[1]){
+  for(j in 1:dim(weatherDat)[2]){
+    areaGrid[i,j,]<-gridarea
+    gridarea<-gridarea + 1
+  }
+}
+
 #code the years, months, and cities
 #code up the number of days for each month and season
 daysinMonth<-c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
@@ -82,6 +92,9 @@ m1<-lm(weatherDat[10,3,]~seasons[10,3,] + as.factor(years[10,3,]))
 plot(coefficients(m1)[5:length(coefficients(m1))], type = "l")
 plot(coefficients(m1)[2:4], type = "l") #spr, sum, win --> down, then up
 
+m1.5<-lm(weatherDat[10,3,]~ as.factor(years[10,3,]))
+plot(coefficients(m1.5), type = "l") #hmm the coefficients for one specific area is much higher than in general
+
 m2<-lm(weatherDat[10,3,]~seasons[10,3,])
 plot(coefficients(m2)[2:4], type = "l")
 
@@ -93,6 +106,8 @@ plot(coefficients(m4), type = "l") #hmm so if guessing area 2 is the wetter area
 
 m5<-lm(weatherDat[areaGroup==1]~seasons[areaGroup==1])
 summary(m5) #wow these coefficients are MUCH bigger in effect
-m6<-lm(weatherDat[areaGroup==1]~as.factor(years[areaGroup==1]))
+m6<-lm(weatherDat[areaGroup==1]~years[areaGroup==1])
 summary(m6)
 plot(coefficients(m6), type = "l") #oh wow that last spike... overall doesn't seem to have changed too much though
+
+weatherDat[areaGroup==1 & months==8 & years ==1]
