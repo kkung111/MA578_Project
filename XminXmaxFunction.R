@@ -1,0 +1,19 @@
+
+
+input <- sample(c(0,1),365,replace = T, prob = c(.4,.6))
+
+best_score <- -1
+best_loc <- c(-1,-1)
+for(i in seq(1,363)) {
+  for(j in seq(i+1,364)) {
+    score <- sum(input[seq(1,i)]) + sum(1-input[seq(i+1,j)]) + sum(input[seq(j+1,365)])
+    if(score > best_score) {
+      best_score <- score
+      best_loc <- c(i,j)
+    }
+    if(score == best_score & (best_loc[2]- best_loc[1]< j-i)) {
+      best_score<-score
+      best_loc <- c(i,j)
+    }
+  }
+}
