@@ -75,3 +75,24 @@ while(diff>0){
 #years--> correlation, time series component A(1), banded--> after 2 years no correlation because correlation
 #decreases as years go on; enough data --> choose some priors that are more influential
 #model selection--> g prior, elner's 
+
+#just run initial models to check things out-- just going to use one area to focus on for now
+m1<-lm(weatherDat[10,3,]~seasons[10,3,] + as.factor(years[10,3,]))
+#look at trend of year.. actually doesn't seem like there's a clear pattern
+plot(coefficients(m1)[5:length(coefficients(m1))], type = "l")
+plot(coefficients(m1)[2:4], type = "l") #spr, sum, win --> down, then up
+
+m2<-lm(weatherDat[10,3,]~seasons[10,3,])
+plot(coefficients(m2)[2:4], type = "l")
+
+m3<-lm(weatherDat[areaGroup==2]~seasons[areaGroup==2])
+summary(m3)
+m4<-lm(weatherDat[areaGroup==2]~as.factor(years[areaGroup==2]))
+summary(m4)
+plot(coefficients(m4), type = "l") #hmm so if guessing area 2 is the wetter area, it def does seem to have dropped
+
+m5<-lm(weatherDat[areaGroup==1]~seasons[areaGroup==1])
+summary(m5) #wow these coefficients are MUCH bigger in effect
+m6<-lm(weatherDat[areaGroup==1]~as.factor(years[areaGroup==1]))
+summary(m6)
+plot(coefficients(m6), type = "l") #oh wow that last spike... overall doesn't seem to have changed too much though
