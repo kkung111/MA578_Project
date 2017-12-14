@@ -87,7 +87,7 @@ while(diff>0){
 #model selection--> g prior, elner's 
 
 #just run initial models to check things out-- just going to use one area to focus on for now
-m1<-lm(weatherDat[10,3,]~seasons[10,3,] + as.factor(years[10,3,]))
+m1<-lm(log(weatherDat[10,3,] + 1)~seasons[10,3,] + as.factor(years[10,3,]))
 #look at trend of year.. actually doesn't seem like there's a clear pattern
 plot(coefficients(m1)[5:length(coefficients(m1))], type = "l")
 plot(coefficients(m1)[2:4], type = "l") #spr, sum, win --> down, then up
@@ -106,8 +106,14 @@ plot(coefficients(m4), type = "l") #hmm so if guessing area 2 is the wetter area
 
 m5<-lm(weatherDat[areaGroup==1]~seasons[areaGroup==1])
 summary(m5) #wow these coefficients are MUCH bigger in effect
-m6<-lm(weatherDat[areaGroup==1]~years[areaGroup==1])
+m6<-lm(log(weatherDat[areaGroup==1]+ 1)~years[areaGroup==1])
 summary(m6)
 plot(coefficients(m6), type = "l") #oh wow that last spike... overall doesn't seem to have changed too much though
 
 weatherDat[areaGroup==1 & months==8 & years ==1]
+
+m7<-lm(log(weatherDat[areaGroup==1 & months==8] + 1)~years[areaGroup==1 & months==8] )
+summary(m7)
+
+m8<-lm(weatherDat[areaGroup==1 & months==8] ~years[areaGroup==1 & months==8] )
+summary(m8)
