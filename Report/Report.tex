@@ -1,0 +1,62 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{amssymb, amsmath, amsthm}
+\usepackage{bbm}
+\usepackage{biblatex}
+\usepackage{floatrow}
+\newfloatcommand{capbtabbox}{table}[][\FBwidth]
+\addbibresource{references.bib}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+\usepackage[margin=1in]{geometry}
+\graphicspath{ {report_figures/} }
+\parskip = 0.1in
+
+\begin{document}
+\title{Forest Fires: An Analysis of the Initial Spread Index}
+\author{Matthew Wiens, Kelly Kung}
+\date{December 20, 2017}
+\maketitle
+\begin{abstract}
+Abstract Here
+\end{abstract}
+
+\section{Introduction}
+
+\section{Background}
+
+%Discussion of the areas
+The Pacific Northwest has a varied climate, from temperate rainforests on the Pacific coast to desert in Southeastern Oregon, which has a major impact on the seasons. Therefore, each grid cell is classified into one of nine climatic zones as follows:
+\begin{enumerate}
+\item Washington Coastline (Temperate Rainforest)
+\item Oregon Coastline
+\item Western Washington / Seattle Metropolitan Area
+\item Willamette Valley and Southwestern Oregon
+\item Cascade Range
+\item Columbia Plateau
+\item Selkirk Mountains
+\item Blue Mountains
+\item Eastern Oregon / High Desert / Great Basin
+\end{enumerate}
+These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
+
+
+\section{Model}
+
+%Maybe discuss first model here? It worked pretty well and informed future direction
+
+We further developed our model by considering the probability of rain on each day for the summer (dry) and winter (rainy) seasons. This is motivated by the idea of trying to plan outdoor activity in each area of the Pacific Northwest and deciding if there is value in traveling to a different area to escape rain.
+Therefore, the following model is proposed:
+\begin{itemize}
+\item The data is binary data representing if it rained or not for each day of the year,
+\item $\pi_w$ and $\pi_d$ are the probability of rain during the wet season and dry season, respectively.
+\item $\theta_1$ and $\theta_2$ are the cutoff points for the wet and dry seasons. The wet season runs from January 1st until the day before $\theta_1$ and from $\theta_2$ to December 31st, and the dry season runs from $\theta_1$ until the day before $\theta_2$, and the natural restriction is imposed that $\theta_1 < \theta_2$
+\item Let $y_j$ be the data on day \textit{j}. Then $p(y_j) = \pi_w  1_{j < \theta_1} + \pi_d  1_{\theta_1\leq j < \theta_2} +\pi_w  1_{j \geq \theta_2} $
+\end{itemize}
+
+\section{Analysis}
+
+\section{Discussion}
+
+\section{Conclusion}
+\end{document}
