@@ -1,3 +1,4 @@
+% !TEX TS?program = pdflatexmk
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
@@ -9,6 +10,7 @@
 \addbibresource{references.bib}
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \usepackage[margin=1in]{geometry}
+\usepackage{siunitx}
 \graphicspath{ {report_figures/} }
 \parskip = 0.1in
 
@@ -30,8 +32,11 @@ The temporal and spatial correlation is also highly dependent on the topography 
 
 \section{Background}
 
+\subsection{Dataset}
 %Our Data
+To analyze the precipitation in the Pacific Northwest, we use the same dataset as Widmann and Bretherton. This data contains precipitation logs (measured in millimeters) from 1949 - 1994 that was collected form the National Weather Service, which was then corrected by the National Climatic Data Center\footnote{The data was corrected during the 'Validated Historical Daily Data' project, which aimed to verify the data collected.}\footnote{T. Reek, S. Doty, and T. Owen. A Deterministic Approach to the Validation of Historical Daily Temperature and Precipitation Data from the Cooperative Network. In Bulletin of the American Meteorological Society 73, no. 6 (1992): 753-62.}. The dataset is a 3-dimensional array with a 2-dimensional grid-cell that consists of 16 longitude subsections and 17 latitude subsections, where each cross-section is approximately \ang{0.48} (latitude) by \ang{0.62} (longitude). The third dimension contains temporal data (16,801 days), which means we have approximately 4 million data points. However, note that there are approximately 32,000 missing values which correspond to areas with few functional weather stations, such as the ocean and some areas in the southeast. Using this dataset, we then transformed and created several variables in order to obtain a model to analyze the precipitation. 
 
+\subsection{Grouping of Areas} \label{GroupArea}
 %Discussion of the areas
 The Pacific Northwest has a varied climate, from temperate rainforests on the Pacific coast to desert in Southeastern Oregon, which has a major impact on the seasons. Therefore, each grid cell is classified into one of nine climatic zones as follows:
 \begin{enumerate}
@@ -48,6 +53,10 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
 
 \includegraphics[width = .4\textwidth, height = 6cm]{Area4PrecipByDay}
+
+\subsection{Indicators for Dry and Wet Season}
+Using the grouping of areas as mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we first created indicators of precipitation for each day in each area, where a 1 indicates that more than 0.1 mm of precipitation occurred.  We then aggregated the indicators in each of the 9 areas for each day and determined that that there was precipitation in the area for that day if a majority of the cells in the area had more than 0.1 mm of precipitation. The areas with precipitation were deemed to be \textit{wet} and the areas without precipitation were deemed to be \textit{dry}. Afterwards, we created an algorithm that chooses indicators of when the dry season starts ($X_{min}$) and when the wet season starts ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season. For example, we expected the $X_{min}$ days to be approximately 150 and the $X_{max}$ days to be approximately 300 because these dates correspond to the beginning of May and the beginning of November. Using this algorithm, we found the start dates for the \textit{dry} and \textit{wet} seasons for the 46 years. \footnote{Note that when creating the indicators for years, we did not take into account of leap years, which resulted in data points that spilled over to the next year. We just take the years in which we have a year's worth of data for.}
+
 
 %The general problem we're trying to model
 
