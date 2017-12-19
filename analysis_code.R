@@ -63,6 +63,7 @@ nW<-dim(west)[1]
 nE<-dim(east)[1]
 nu0<-2 #note: had to change this because was giving me errors with 1
 nun<-nu0 + n
+
 kn<-k0 + n
 
 set.seed(1234)
@@ -79,7 +80,7 @@ for(i in 1:nSim){
   #sample Sigma
   LnW<-westCov + crossprod(west - outer(rep(1, nrow(west)), c(ybW))) + k0*n/kn*
     crossprod(t(westMu0 - ybW))
-  SigmaW<-riw(1, nun, Ln)[,,1]
+  SigmaW<-riw(1, nun, LnW)[,,1]
   
   LnE<-eastCov + crossprod(east - outer(rep(1, nrow(east)), c(ybE))) + k0*n/kn*
     crossprod(t(eastMu0 - ybE))
