@@ -6,6 +6,7 @@
 \usepackage{bbm}
 \usepackage{biblatex}
 \usepackage{floatrow}
+\usepackage{tabu}
 \newfloatcommand{capbtabbox}{table}[][\FBwidth]
 \addbibresource{references.bib}
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
@@ -64,24 +65,65 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
 
 
-<<<<<<< HEAD
-\subsection{Indicators for Dry and Wet Season}
-Using the grouping of areas as mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we first created indicators of precipitation for each day in each area, where a 1 indicates that more than 0.1 mm of precipitation occurred.  We then aggregated the indicators in each of the 9 areas for each day and determined that that there was precipitation in the area for that day if a majority of the cells in the area had more than 0.1 mm of precipitation. The areas with precipitation were deemed to be \textit{wet} and the areas without precipitation were deemed to be \textit{dry}. Afterwards, we created an algorithm that chooses indicators of when the dry season starts ($X_{min}$) and when the wet season starts ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season. For example, we expected the $X_{min}$ days to be approximately 150 and the $X_{max}$ days to be approximately 300 because these dates correspond to the beginning of May and the beginning of November. Using this algorithm, we found the start dates for the \textit{dry} and \textit{wet} seasons for the 46 years. \footnote{Note that when creating the indicators for years, we did not take into account of leap years, which resulted in data points that spilled over to the next year. We just take the years in which we have a year's worth of data for.}
-
-
-=======
 \begin{figure}[h!]
 \centering
 \includegraphics[width = .4\textwidth, height = 6cm]{topography}
 \caption{Topography of the region }
 \label{fig:area4}
 \end{figure}
->>>>>>> 2cc040292e28ccaaa59f5f1d2fbcee9c1c81b92d
+
+\subsection{Indicators for Dry and Wet Season}
+Using the grouping of areas as mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we first created indicators of precipitation for each day in each area, where a 1 indicates that more than 0.1 mm of precipitation occurred.  We then aggregated the indicators in each of the 9 areas for each day and determined that that there was precipitation in the area for that day if a majority of the cells in the area had more than 0.1 mm of precipitation. The areas with precipitation were deemed to be \textit{wet} and the areas without precipitation were deemed to be \textit{dry}. Afterwards, we created an algorithm that chooses indicators of when the dry season starts ($X_{min}$) and when the wet season starts ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season. For example, we expected the $X_{min}$ days to be approximately 170 and the $X_{max}$ days to be approximately 260 because these dates correspond to the beginning of summer and the beginning of autumn. Using this algorithm, we found the start dates for the dry and wet seasons for the 46 years. \footnote{Note that when creating the indicators for years, we did not take into account of leap years, which resulted in data points that spilled over to the next year. We just take the years in which we have a year's worth of data for.}
+
+
+
 %The general problem we're trying to model
 
 
 \section{Model}
+\subsection{Model 1}
+Our first model is motivated by the goal of determining when the dry and wet seasons start. To do so, we use a model with a semi-conjugate multivariate normal prior and multivariate normal likelihood. We chose this model because it has a closed form and we are able to sample from the posterior distribution using a Gibbs Sampler on the full conditionals. Furthermore, upon initial exploration of the data, we see that the start dates of dry and wet seasons are approximately normal as seen in Figure XXX. (skeptical about the other plot...?) Thus, we proceeded with the multivariate normal model with confidence that it represents the information we have. We define the model using the following semi-conjugate prior distributions. 
 
+\begin{align*}
+\theta \sim MVN(\mu_0, \Lambda_0) \\
+\Sigma \sim Inverse-Wishart_{\nu_0}(\Sigma_0^{-1})
+\end{align*}
+
+To determine the prior parameters, we set $\mu_0 = \begin{bmatrix} X_{min} \\ X_{max} \end{bmatrix} = \begin{bmatrix} 170 \\ 260 \end{bmatrix}$ and $\Lambda_0 = \begin{bmatrix} 30^2 & 0 \\ 0 & 30^2 \end{bmatrix}$ for all 9 area groups. The prior means were chosen according to when the summer and autumn season starts and the prior standard deviations of the $\theta 's$ were chosen to represent a spread of one month. We chose the $\Sigma_0$ values, shown in  to equal the \textit{variance - covariance} matrices for each area group from the data. We chose the prior 
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1}
+
+\begin{tabular}{|*5{>{\renewcommand{\arraystretch}{1}}c|}}
+\hline
+\textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5}\\
+\hline
+$\left[ \begin{array}{cc} 1033.00 & -254.79  \\ -254.79 & 562.52 \end{array}\right]$ & $\left[ \begin{array}{cc} 652.62 & 32.22 \\ 32.22 & 307.61  \end{array}\right]$ & $\left[ \begin{array}{cc} 1103.09 & -35.55 \\ -35.55 & 860.19  \end{array}\right]$ & $\left[ \begin{array}{cc} 661.74 & 17.54 \\ 17.54 & 197.88  \end{array}\right]$ & $\left[ \begin{array}{cc} 943.12 & 67.83 \\ 67.83 & 524.46  \end{array}\right]$ \\
+\hline
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{|*4{>{\renewcommand{\arraystretch}{1}}cl}}
+\hline
+\textbf{6} & \textbf{7} & \textbf{8} & \textbf{9}\\
+\hline
+$\left[ \begin{array}{cc} 162.92 & -15.51 \\ -15.51 & 108.72  \end{array}\right]$ & $\left[ \begin{array}{cc} 778.02 & -17.29 \\ -17.29 & 99.43  \end{array}\right]$ & $\left[ \begin{array}{cc} 1097.19 & 58.49 \\ 58.49 & 76.20  \end{array}\right]$ & $\left[ \begin{array}{cc} 288.11 & -15.03 \\ -15.03 & 12.34  \end{array}\right]$ \\
+\hline
+\end{tabular}
+\caption{Table of prior $\Sigma_0$ values for each area group}
+\end{table}
+
+
+In order to conduct Gibbs Sampling, we need full conditionals of $\theta$ and $\Sigma$. 
+\begin{align*}
+\theta | \Sigma, y \sim MVN(\mu_n(\Sigma), \Lambda_n(\Sigma)))  \\
+\Sigma | \theta, y \sim Inverse - Wishart_{\nu_n} (\Sigma_n^{-1}(\theta))
+\end{align*}
+
+
+\subsection{Model 2}
 %Maybe discuss first model here? It worked pretty well and informed future direction
 
 We further developed our model by considering the probability of rain on each day for the summer (dry) and winter (rainy) seasons. This is motivated by the idea of trying to plan outdoor activity in each area of the Pacific Northwest and deciding if there is value in traveling to a different area to escape rain.
