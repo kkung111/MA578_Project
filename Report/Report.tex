@@ -13,7 +13,7 @@
 \parskip = 0.1in
 
 \begin{document}
-\title{Forest Fires: An Analysis of the Initial Spread Index}
+\title{Rain}
 \author{Matthew Wiens, Kelly Kung}
 \date{December 20, 2017}
 \maketitle
@@ -23,7 +23,14 @@ Abstract Here
 
 \section{Introduction}
 
+Residents and visitors to the Pacific Northwest (Oregon and Washington) notice a distinct pattern year over year: most days during the winter are rainy, and then they feel that there a distinct point during the spring or early summer when the weather becomes dry most days. Similarly, during early fall the nice weather switches back to rain.  However, the timing of the switch varies throughout the area, with the prominent Cascade Mountains being a key factor. There are many resorts on the east side of the Cascade Range that cater to residents of the west side looking to escape the rain. 
+
+Widmann and Bretherton developed a methodology to control for local variation in topography and precipitation data and generated a dataset of estimated precipitation data over 46 years in a 50km by 50km grid.  In comparison, general models of atmospheric weather operate on the order of hundreds of kilometers, so there significant room to improve the spatial resolution of weather models.  In particular, local topographic features are not captured by general model, which is a limitation in regions like the Pacific Northwest.
+The temporal and spatial correlation is also highly dependent on the topography and difficult to model. 
+
 \section{Background}
+
+%Our Data
 
 %Discussion of the areas
 The Pacific Northwest has a varied climate, from temperate rainforests on the Pacific coast to desert in Southeastern Oregon, which has a major impact on the seasons. Therefore, each grid cell is classified into one of nine climatic zones as follows:
@@ -31,7 +38,7 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 \item Washington Coastline (Temperate Rainforest)
 \item Oregon Coastline
 \item Western Washington / Seattle Metropolitan Area
-\item Willamette Valley and Southwestern Oregon
+\item Portland Metropolitan Area / Willamette Valley / Southwestern Oregon
 \item Cascade Range
 \item Columbia Plateau
 \item Selkirk Mountains
@@ -40,6 +47,9 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 \end{enumerate}
 These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
 
+\includegraphics[width = .4\textwidth, height = 6cm]{Area4PrecipByDay}
+
+%The general problem we're trying to model
 
 \section{Model}
 
