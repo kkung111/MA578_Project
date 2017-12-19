@@ -18,7 +18,9 @@
 \date{December 20, 2017}
 \maketitle
 \begin{abstract}
-Abstract Here
+
+Predicting precipitation is a key problem for residents of the Pacific Northwest, from it's impact on family vacations to landslides. A noteworthy feature of the area is distinct chances of precipitation between the summer and winter. In this report, we propose a model for differentiating the two seasons and understanding the chance of precipitation in each, across different climatic areas of the state. Such a model can be used to predict optimal times to travel from a rainy region to a dry region. We adopt a Bayesian methodology and  discuss predictive results within the Bayesian framework.  
+
 \end{abstract}
 
 \section{Introduction}
@@ -26,7 +28,10 @@ Abstract Here
 Residents and visitors to the Pacific Northwest (Oregon and Washington) notice a distinct pattern year over year: most days during the winter are rainy, and then they feel that there a distinct point during the spring or early summer when the weather becomes dry most days. Similarly, during early fall the nice weather switches back to rain.  However, the timing of the switch varies throughout the area, with the prominent Cascade Mountains being a key factor. There are many resorts on the east side of the Cascade Range that cater to residents of the west side looking to escape the rain. 
 
 Widmann and Bretherton developed a methodology to control for local variation in topography and precipitation data and generated a dataset of estimated precipitation data over 46 years in a 50km by 50km grid.  In comparison, general models of atmospheric weather operate on the order of hundreds of kilometers, so there significant room to improve the spatial resolution of weather models.  In particular, local topographic features are not captured by general model, which is a limitation in regions like the Pacific Northwest.
-The temporal and spatial correlation is also highly dependent on the topography and difficult to model. 
+The temporal and spatial correlation is also highly dependent on the topography and difficult to model, and therefore there has been a focus on parametrizing models and reducing the dimensionality. 
+
+
+In this report, we propose a Bayesian approach for two reasons: first, to capture prior beliefs  from living in the area of one author, and second to be able to discuss distributions around complicated model parameters and probabilistic beliefs about the state of weather on a specific day of the year. Bayesian approaches for daily precipitation data are not new, for example see [Olson and Kleiber].  
 
 \section{Background}
 
@@ -45,10 +50,21 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 \item Blue Mountains
 \item Eastern Oregon / High Desert / Great Basin
 \end{enumerate}
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .4\textwidth, height = 6cm]{Area4PrecipByDay}
+\caption{Western Oregon precipitation chance over the year}
+\label{fig:area4}
+\end{figure}
 These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
 
-\includegraphics[width = .4\textwidth, height = 6cm]{Area4PrecipByDay}
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width = .4\textwidth, height = 6cm]{topography}
+\caption{Topography of the region }
+\label{fig:area4}
+\end{figure}
 %The general problem we're trying to model
 
 \section{Model}
