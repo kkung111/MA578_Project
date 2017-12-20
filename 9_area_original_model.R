@@ -16,7 +16,7 @@ output_th <- list(rep(0,9))
 output_s2 <- list(rep(0,9))
 output_yt <- list(rep(0,9))
 for (k in seq(1,9)) {
-west<-as.matrix(read.table(paste("Area",k,"MinMaxData.tsv"), sep = "\t"))
+west<-as.matrix(read.table(paste("Area",k,"MinMaxDataV2.tsv"), sep = "\t"))
 
 
 westCov<-cov(west)
@@ -68,7 +68,13 @@ set.seed(1234)
 
 SigmaW<-riwish(nu0, westCov)
 thetaW<-rmvnorm(1, westMu0, wests20)
+<<<<<<< HEAD
 nSim<-10000
+=======
+
+nSim<-20000
+
+>>>>>>> ce664a3f65254674399280307b8b5292068d5e9c
 
 THW<-S2W<-YtW<-NULL
 for(i in 1:nSim+1000){
@@ -116,6 +122,9 @@ plot(west_dry_season,type="l",main = "Prop of Seattle Dry Season")
 plot(east_dry_season,type="l",main = "Prop of Columbia Plateau Dry Season")
 plot(west_v_east,type="l",main = "Predictive Distribution: \nProbability of going East from Seattle and going\n from rainy season to dry season",ylab = "Probability",xlab="Day of Year")
 
+# Means
+round(matrix(unlist(lapply(output_th,function(x) {apply(x,2,mean)})),ncol=2,byrow=T))
+round(matrix(unlist(lapply(output_th,function(x) {apply(x,2,var)})),ncol=2,byrow=T))
 
 
 west_dry_season <- rep(0,365)
@@ -142,3 +151,12 @@ summer_length <- matrix( unlist(lapply(output_yt,function(x) {x[,2]-x[,1]} )),nr
 round(apply(summer_length,2,mean))
 round(sqrt(apply(summer_length,2,var)))
 
+<<<<<<< HEAD
+=======
+
+#plot Seattle Data
+plot(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,1],kernel = "epanechnikov"),lty = 1,xlim=c(1,365),main = "Area 4 Data Distribution",xlab = "Day of Year",ylim = c(0,1/50))
+points(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,2],kernel = "epanechnikov"),lty = 2,type="l")
+legend("topleft", c("Dry Start","Wet Start"),lty = c(1,2))
+
+>>>>>>> ce664a3f65254674399280307b8b5292068d5e9c
