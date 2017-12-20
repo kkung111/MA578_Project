@@ -20,7 +20,7 @@ for( i in seq(1,area_count)) {
 MrainLevel <- list(rep(0,9))
 for( i in seq(1,9)) {
 MrainLevel[[i]] <- matrix(unlist(lapply(tf_data[[i]],CalculateBounds)),ncol=2,byrow=T)
-write.matrix(MrainLevel[[i]],file=paste("Area",i,"MinMaxDataV2.tsv"),sep="\t")
+write.matrix(MrainLevel[[i]],file=paste("Area",i,"MinMaxData.tsv"),sep="\t")
 }
 
 rain_levels_area <- MrainLevel

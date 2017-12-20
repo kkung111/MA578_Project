@@ -30,14 +30,17 @@ Predicting precipitation is a key problem for residents of the Pacific Northwest
 
 Residents and visitors to the Pacific Northwest (Oregon and Washington) notice a distinct pattern year over year: most days during the winter are rainy, and then they feel that there a distinct point during the spring or early summer when the weather becomes dry most days. Similarly, during early fall the nice weather switches back to rain.  However, the timing of the switch varies throughout the area, with the prominent Cascade Mountains being a key factor. There are many resorts on the east side of the Cascade Range that cater to residents of the west side looking to escape the rain. 
 
-Widmann and Bretherton developed a methodology to control for local variation in topography and precipitation data and generated a dataset of estimated precipitation data over 46 years in a 50km by 50km grid.  In comparison, general models of atmospheric weather operate on the order of hundreds of kilometers, so there significant room to improve the spatial resolution of weather models.  In particular, local topographic features are not captured by general model, which is a limitation in regions like the Pacific Northwest.
-The temporal and spatial correlation is also highly dependent on the topography and difficult to model, and therefore there has been a focus on parametrizing models and reducing the dimensionality. 
+Widmann and Bretherton\footnote{M. Widmann and C. S. Bretherton. Validation of Mesoscale Precipitation in the NCEP Reanalysis Using a New Gridcell Dataset for the Northwestern United States. In Journal of Climate, 13(11), 1936-1950. 2000.} developed a methodology to control for local variation in topography and precipitation data and generated a dataset of estimated precipitation data over 46 years in a 50km by 50km grid.  In comparison, general models of atmospheric weather operate on the order of hundreds of kilometers, so there significant room to improve the spatial resolution of weather models.  In particular, local topographic features are not captured by general model, which is a limitation in regions like the Pacific Northwest. The temporal and spatial correlation is also highly dependent on the topography and difficult to model, and therefore there has been a focus on parametrizing models and reducing the dimensionality. 
 
+In this report, we propose a Bayesian approach for two reasons: first, to capture prior beliefs  from living in the area of one author, and second to be able to discuss distributions around complicated model parameters and probabilistic beliefs about the state of weather on a specific day of the year. Bayesian approaches for daily precipitation data are not new, for example see [Olson and Kleiber].... With a Bayesian approach, we hope to focus on two main aspects (1) the beginning of dry and wet seasons and (2) the probability of precipitation. These aspects will then allow us to answer further questions we may have regarding precipitation. 
 
-In this report, we propose a Bayesian approach for two reasons: first, to capture prior beliefs  from living in the area of one author, and second to be able to discuss distributions around complicated model parameters and probabilistic beliefs about the state of weather on a specific day of the year. Bayesian approaches for daily precipitation data are not new, for example see [Olson and Kleiber].  
+This report is organized as follows. In Section 2, we refine our goals and questions we hope to answer with this analysis. This then motivates the creation of several variables in our dataset, which is also outlined in Section 2. In Section 3, we discuss the two models that we used in order to analyze the data.  We then begin our analysis of the dataset in Section 4 and we discuss our findings in Section 5. In Section 6, we conclude our report with summaries of our analysis as well as potential future directions.
 
 \section{Background}
 
+%The general problem we're trying to model
+\subsection{Goals-change name later}
+Upon doing their analysis, Widmann and Bretherton found that there was some variability in precipitation levels in the different topographical areas in the Northwestern United States. To build upon the results that Widmann and Bretherton found, we want to further investigate the variability in the different areas. In particular, we are interested in when the dry and wet seasons start in different topo
 \subsection{Dataset}
 %Our Data
 To analyze the precipitation in the Pacific Northwest, we use the same dataset as Widmann and Bretherton. This data contains precipitation logs (measured in millimeters) from 1949 - 1994 that was collected form the National Weather Service, which was then corrected by the National Climatic Data Center\footnote{The data was corrected during the 'Validated Historical Daily Data' project, which aimed to verify the data collected.}\footnote{T. Reek, S. Doty, and T. Owen. A Deterministic Approach to the Validation of Historical Daily Temperature and Precipitation Data from the Cooperative Network. In Bulletin of the American Meteorological Society 73, no. 6 (1992): 753-62.}. The dataset is a 3-dimensional array with a 2-dimensional grid-cell that consists of 16 longitude subsections and 17 latitude subsections, where each cross-section is approximately \ang{0.48} (latitude) by \ang{0.62} (longitude). The third dimension contains temporal data (16,801 days), which means we have approximately 4 million data points. However, note that there are approximately 32,000 missing values which correspond to areas with few functional weather stations, such as the ocean and some areas in the southeast. Using this dataset, we then transformed and created several variables in order to obtain a model to analyze the precipitation. 
@@ -62,7 +65,7 @@ The Pacific Northwest has a varied climate, from temperate rainforests on the Pa
 \caption{Western Oregon precipitation chance over the year}
 \label{fig:area4}
 \end{figure}
-These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}
+These zones were decided by considering average precipitation over the time period of the data and the topographic features of the region. The rainfall for the region was aggregated by considering if there was measurable rainfall in each grid by day, and then for each day if the majority of grid cells reported rain, then a value of \textit{rain} was assigned to the area, else it was \textit{dry}.
 
 
 \begin{figure}[h!]
@@ -76,10 +79,11 @@ These zones were decided by considering average precipitation over the time peri
 \subsection{Indicators for Dry and Wet Season}
 Using the grouping of areas as mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we first created indicators of precipitation for each day in each area, where a 1 indicates that more than 0.1 mm of precipitation occurred.  We then aggregated the indicators in each of the 9 areas for each day and determined that that there was precipitation in the area for that day if a majority of the cells in the area had more than 0.1 mm of precipitation. The areas with precipitation were deemed to be \textit{wet} and the areas without precipitation were deemed to be \textit{dry}. Afterwards, we created an algorithm that chooses indicators of when the dry season starts ($X_{min}$) and when the wet season starts ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season. For example, we expected the $X_{min}$ days to be approximately 170 and the $X_{max}$ days to be approximately 260 because these dates correspond to the beginning of summer and the beginning of autumn. Using this algorithm, we found the start dates for the dry and wet seasons for the 46 years. \footnote{Note that when creating the indicators for years, we did not take into account of leap years, which resulted in data points that spilled over to the next year. We just take the years in which we have a year's worth of data for.}
 
-
-
-%The general problem we're trying to model
-
+\begin{figure}
+\includegraphics[width = .4\textwidth, height = 6cm]{Area4DataDistribution}
+\caption{Kernel Density Estimate of the start and end of the dry season for Portland}
+\label{PDXexample}
+\end{figure}
 
 \section{Model}
 \subsection{Model 1}
@@ -106,7 +110,7 @@ $\left[ \begin{array}{cc} 1033.00 & -254.79  \\ -254.79 & 562.52 \end{array}\rig
 
 \bigskip
 
-\begin{tabular}{|*4{>{\renewcommand{\arraystretch}{1}}cl}}
+\begin{tabular}{|*4{>{\renewcommand{\arraystretch}{1}}c|}}
 \hline
 \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9}\\
 \hline
@@ -138,7 +142,10 @@ Therefore, the following model is proposed:
 
 \section{Analysis}
 
-Using the semi conjugate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions. 
+Using the semi conjugate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions.  We report summary statistics of the posterior predictive distribution in table \ref{tab:meanparams}.  In particular we note the increased variability of the start of the dry season between regions and the variance within each region.
+On the other hand, the end of the dry season is much more consistent within and across regions. This suggests larger weather patterns triggering the end of the dry season which are consistent between years.  
+Also of interest is the beginning of dry, summer weather across the Pacific Northwest. In table \ref{95pctsummer} we report the 95th percentile of the beginning of summer. For regions 3 and 4, which include Seattle and Portland, this date is around the 4th of July weekend, which agrees with common beliefs in the area that one cannot count on summer to begin until then. 
+In addition, a very likely beginning of the dry season is later in the generally drier, Eastern part of the region. This may be due to the drier nature of that region, so distinctly different weather patterns may not develop until later in the summer. 
 
 \begin{table}[h!]
 \begin{tabular}{|l|c|c|c|c|}
@@ -146,27 +153,50 @@ Using the semi conjugate normal model described in section 3.1, we used a Gibbs 
 Region & Start Date Mean & Start Date Variance & End Date Mean & End Date Variance\\
 \hline
 \hline
-1&157&22&275&12\\
-2&145&14&286&7\\
-3&159&24&272&19\\
-4&137&15&291&5\\
-5&160&20&276&11\\
-6&110&5&297&3\\
-7&117&18&297&3\\
-8&134&24&298&2\\
-9&114&8&301&1\\
+1&133&26&291&14\\
+2&136&15&299&10\\
+3&137&22&293&10\\
+4&134&22&297&13\\
+5&144&22&297&10\\
+6&119&65&300&17\\
+7&126&79&301&20\\
+8&147&49&305&12\\
+9&134&44&309&16\\
 \hline
 \end{tabular}
 \caption{Posterior Mean and Variance of mean parameter}
 \label{tab:meanparams}
 \end{table}
 
+\begin{table}[h!]
+\begin{tabular}{|c|c|}
+\hline
+Region & Day of Year \\
+\hline
+\hline
+1&190 \\
+2&179 \\
+3&190 \\
+4&188 \\
+5&197 \\
+6&210\\
+ 7&226 \\
+ 8&226 \\
+ 9&208\\
+\hline
+\end{tabular}
+\caption{Date by area such that there is a 95\% probability that the dry season has begun}
+\label{95pctsummer}
+\end{table}
 
 
 In figure \ref{fig:goingeast} this model is used to explore how one could escape the rainy season in the major metropolitan areas of Seattle, Washington (region 3) and Portland, Oregon (region 4). 
 For example, resort operators in the drier climates directly east of these cities are most desirable when they have dry weather and the cities have rainy weather.  
 We find that there is longer period in the springtime when going to the east side of the Cascades is desirable, and  a narrow window during the fall. 
 However, by noting the maximum probability is substantially less than 1 in each peak, we note that the range of this time period is variable year to year, and so making exact future plans would be difficult.
+
+
+
 
 \begin{figure}[h!]
 \centering
