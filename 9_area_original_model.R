@@ -68,10 +68,10 @@ set.seed(1234)
 
 SigmaW<-riwish(nu0, westCov)
 thetaW<-rmvnorm(1, westMu0, wests20)
-nSim<-5000
+nSim<-10000
 
 THW<-S2W<-YtW<-NULL
-for(i in 1:nSim){
+for(i in 1:nSim+1000){
   #sample Sigma
   LnW<-westCov + crossprod(west - outer(rep(1, nrow(west)), c(ybW))) + k0*n/kn*
     crossprod(t(westMu0 - ybW))
@@ -85,11 +85,12 @@ for(i in 1:nSim){
  
   
   #prediction
+  if(i > 1000) {
   ytW<-rmv(1, thetaW, SigmaW)
   THW<-cbind(THW, thetaW)
   S2W<-cbind(S2W, c(SigmaW))
   YtW<-cbind(YtW, ytW)
-  
+  }
 
 }
 
@@ -128,7 +129,16 @@ for(i in seq(1,365)) {
 plot(west_dry_season,type="l",main = "Prop of Portland Dry Season")
 plot(east_dry_season,type="l",main = "Prop of Eastern Oregon Dry Season")
 plot(west_v_east,type="l",main = "Predictive Distribution: \nProbability of going East from Portland and going\n from rainy season to dry season",ylab = "Probability",xlab="Day of Year")
-# First
-# Length
+# First/Last area
+start_dates <- matrix( unlist(lapply(output_yt,function(x) {x[,1]} )),nrow = nSim,ncol=9,byrow=F)
+table(apply(start_dates,1,which.min))/nSim
+  
+end_dates <- matrix( unlist(lapply(output_th,function(x) {x[,2]} )),nrow = nSim,ncol=9,byrow=F)
+table(apply(start_dates,1,which.max))/nSim
 
-as.matrix( lapply(output_yt,[1,] )
+
+# Length
+summer_length <- matrix( unlist(lapply(output_yt,function(x) {x[,2]-x[,1]} )),nrow = nSim,ncol=9,byrow=F)
+round(apply(summer_length,2,mean))
+round(sqrt(apply(summer_length,2,var)))
+
