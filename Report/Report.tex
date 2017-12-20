@@ -12,6 +12,7 @@
 \newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
 \usepackage[margin=1in]{geometry}
 \usepackage{siunitx}
+\usepackage{float}
 \graphicspath{ {report_figures/} }
 \parskip = 0.1in
 
@@ -80,22 +81,25 @@ These zones were decided by considering average precipitation over the time peri
 \subsection{Indicators for Dry and Wet Season}
 Using the grouping of areas as mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we first created indicators of precipitation for each day in each area, where a 1 indicates that more than 0.1 mm of precipitation occurred.  We then aggregated the indicators in each of the 9 areas for each day and determined that that there was precipitation in the area for that day if a majority of the cells in the area had more than 0.1 mm of precipitation. The areas with precipitation were deemed to be \textit{wet} and the areas without precipitation were deemed to be \textit{dry}. Afterwards, we created an algorithm that chooses indicators of when the dry season starts ($X_{min}$) and when the wet season starts ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season. For example, we expected the $X_{min}$ days to be approximately 170 and the $X_{max}$ days to be approximately 260 because these dates correspond to the beginning of summer and the beginning of autumn. Using this algorithm, we found the start dates for the dry and wet seasons for the 46 years. \footnote{Note that when creating the indicators for years, we did not take into account of leap years, which resulted in data points that spilled over to the next year. We just take the years in which we have a year's worth of data for.}
 
-\begin{figure}
+
+\section{Model}
+\subsection{Model 1}
+Our first model is motivated by the goal of determining when the dry and wet seasons start. To do so, we use a model with a semi-conjugate multivariate normal prior and multivariate normal likelihood. We chose this model because it has a closed form and we are able to sample from the posterior distribution using a Gibbs sampler on the full conditionals. Furthermore, upon initial exploration of the data, we see that the distribution of the start days of dry and wet seasons are approximately normal as seen in Figure \ref{PDXexample}. Thus, we proceed with the multivariate normal model with confidence that it represents the data we have. 
+
+\begin{figure}[H]
 \includegraphics[width = .4\textwidth, height = 6cm]{Area4DataDistribution}
 \caption{Kernel Density Estimate of the start and end of the dry season for Portland}
 \label{PDXexample}
 \end{figure}
 
-\section{Model}
-\subsection{Model 1}
-Our first model is motivated by the goal of determining when the dry and wet seasons start. To do so, we use a model with a semi-conjugate multivariate normal prior and multivariate normal likelihood. We chose this model because it has a closed form and we are able to sample from the posterior distribution using a Gibbs Sampler on the full conditionals. Furthermore, upon initial exploration of the data, we see that the start dates of dry and wet seasons are approximately normal as seen in Figure XXX. (skeptical about the other plot...?) Thus, we proceeded with the multivariate normal model with confidence that it represents the information we have. We define the model using the following semi-conjugate prior distributions. 
+We define the semi-conjugate prior distributions as follows. 
 
 \begin{align*}
 \theta \sim MVN(\mu_0, \Lambda_0) \\
 \Sigma \sim Inverse-Wishart_{\nu_0}(\Sigma_0^{-1})
 \end{align*}
 
-To determine the prior parameters, we set $\mu_0 = \begin{bmatrix} X_{min} \\ X_{max} \end{bmatrix} = \begin{bmatrix} 170 \\ 260 \end{bmatrix}$ and $\Lambda_0 = \begin{bmatrix} 30^2 & 0 \\ 0 & 30^2 \end{bmatrix}$ for all 9 area groups. The prior means were chosen according to when the summer and autumn season starts and the prior standard deviations of the $\theta 's$ were chosen to represent a spread of one month. We chose the $\Sigma_0$ values, shown in  to equal the \textit{variance - covariance} matrices for each area group from the data. We chose the prior 
+To determine the prior parameters, we set $\mu_0 = \begin{bmatrix} X_{min} \\ X_{max} \end{bmatrix} = \begin{bmatrix} 170 \\ 260 \end{bmatrix}$ and $\Lambda_0 = \begin{bmatrix} 30^2 & 0 \\ 0 & 30^2 \end{bmatrix}$ for all 9 area groups. The prior means are chosen according to when the summer and autumn season starts and the prior standard deviations of the $\theta 's$ were chosen to represent a spread of one month. We choose the $\Sigma_0$ values by mimicking the methods used during our homework, where we let $\Sigma_0$ equal the textit{variance - covariance} matrices for each area group from the data. The parameters for $\Sigma_0$ are shown in Table \ref{tab:sigmavals}.
 
 \begin{table}[h!]
 \centering
@@ -119,14 +123,17 @@ $\left[ \begin{array}{cc} 162.92 & -15.51 \\ -15.51 & 108.72  \end{array}\right]
 \hline
 \end{tabular}
 \caption{Table of prior $\Sigma_0$ values for each area group}
+\label{tab:sigmavals}
 \end{table}
 
 
-In order to conduct Gibbs Sampling, we need full conditionals of $\theta$ and $\Sigma$. 
+
+In order to conduct Gibbs sampling, we need full conditionals of $\theta$ and $\Sigma$, which are shown below.  By running Gibbs sampling on these full conditionals, we are effectively sampling from the posterior distribution and so we obtain posterior estimates of $\theta$ and $\Sigma$. 
 \begin{align*}
 \theta | \Sigma, y \sim MVN(\mu_n(\Sigma), \Lambda_n(\Sigma)))  \\
 \Sigma | \theta, y \sim Inverse - Wishart_{\nu_n} (\Sigma_n^{-1}(\theta))
 \end{align*}
+
 
 
 \subsection{Model 2}
@@ -143,9 +150,9 @@ Therefore, the following model is proposed:
 
 \section{Analysis}
 
-Using the semi conjugate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions.  We report summary statistics of the posterior predictive distribution in table \ref{tab:meanparams}.  In particular we note the increased variability of the start of the dry season between regions and the variance within each region.
+Using the semi-conjugate multivariate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions.  We report summary statistics of the posterior predictive distribution in Table \ref{tab:meanparams}.  In particular we note the increased variability of the start of the dry season between regions and the variance within each region.
 On the other hand, the end of the dry season is much more consistent within and across regions. This suggests larger weather patterns triggering the end of the dry season which are consistent between years.  
-Also of interest is the beginning of dry, summer weather across the Pacific Northwest. In table \ref{95pctsummer} we report the 95th percentile of the beginning of summer. For regions 3 and 4, which include Seattle and Portland, this date is around the 4th of July weekend, which agrees with common beliefs in the area that one cannot count on summer to begin until then. 
+Also of interest is the beginning of dry, summer weather across the Pacific Northwest. In Table \ref{95pctsummer} we report the 95th percentile of the beginning of summer. For regions 3 and 4, which include Seattle and Portland, this date is around the 4th of July weekend, which agrees with common beliefs in the area that one cannot count on summer to begin until then. 
 In addition, a very likely beginning of the dry season is later in the generally drier, Eastern part of the region. This may be due to the drier nature of that region, so distinctly different weather patterns may not develop until later in the summer. 
 
 \begin{table}[h!]

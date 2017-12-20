@@ -15,6 +15,7 @@ library(mvtnorm)
 output_th <- list(rep(0,9))
 output_s2 <- list(rep(0,9))
 output_yt <- list(rep(0,9))
+
 for (k in seq(1,9)) {
 west<-as.matrix(read.table(paste("Area",k,"MinMaxDataV2.tsv"), sep = "\t"))
 
@@ -33,7 +34,7 @@ westMu0<-matrix(c(westMinMu0, westMaxMu0), nrow = 2)
 
 
 #find the prior standard deviations
-westMins20< 30 #-(245 - westMinMu0)/2
+westMins20<-30 #-(245 - westMinMu0)/2
 westMaxs20<-30 #(303 - westMaxMu0)/2
 
 wests20<-matrix(c(westMins20, 0, 0, westMaxs20), nrow = 2)
@@ -57,36 +58,31 @@ riw<-function(n,nu0,Sm){ # Sigma~IW(nu0,Sigma^(-1)); requires rmv
 
 #starting values
 ybW<-apply(west, 2, mean)
-k0<-1
 nW<-dim(west)[1]
 nu0<-2 #note: had to change this because was giving me errors with 1
-nun<-nu0 + n
+nun<-nu0 + nW
 
-kn<-k0 + n
 
 set.seed(1234)
 
 SigmaW<-riwish(nu0, westCov)
 thetaW<-rmvnorm(1, westMu0, wests20)
-<<<<<<< HEAD
-nSim<-10000
-=======
+#nSim<-10000
 
 nSim<-20000
 
->>>>>>> ce664a3f65254674399280307b8b5292068d5e9c
 
 THW<-S2W<-YtW<-NULL
-for(i in 1:nSim+1000){
+for(i in 1:(nSim+1000)){
   #sample Sigma
-  LnW<-westCov + crossprod(west - outer(rep(1, nrow(west)), c(ybW))) + k0*n/kn*
-    crossprod(t(westMu0 - ybW))
+  LnW<-westCov + crossprod(west - outer(rep(1, nrow(west)), c(thetaW)))
   SigmaW<-riw(1, nun, LnW)[,,1]
   
   
   #sample theta
-  munW<-(k0*westMu0 + nW *ybW)/kn
-  thetaW<-rmv(1, munW, SigmaW/kn)
+  LN<-solve(solve(wests20) + nW *solve(SigmaW))
+  munW<-LN%*%(solve(wests20)%*%westMu0 + nW*solve(SigmaW)%*%ybW)
+  thetaW<-rmv(1, munW,LN)
   
  
   
@@ -151,12 +147,9 @@ summer_length <- matrix( unlist(lapply(output_yt,function(x) {x[,2]-x[,1]} )),nr
 round(apply(summer_length,2,mean))
 round(sqrt(apply(summer_length,2,var)))
 
-<<<<<<< HEAD
-=======
 
 #plot Seattle Data
 plot(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,1],kernel = "epanechnikov"),lty = 1,xlim=c(1,365),main = "Area 4 Data Distribution",xlab = "Day of Year",ylim = c(0,1/50))
 points(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,2],kernel = "epanechnikov"),lty = 2,type="l")
 legend("topleft", c("Dry Start","Wet Start"),lty = c(1,2))
 
->>>>>>> ce664a3f65254674399280307b8b5292068d5e9c
