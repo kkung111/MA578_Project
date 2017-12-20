@@ -63,7 +63,7 @@ nu0<-2 #note: had to change this because was giving me errors with 1
 nun<-nu0 + nW
 
 
-set.seed(1234)
+set.seed(1234+k)
 
 SigmaW<-riwish(nu0, westCov)
 thetaW<-rmvnorm(1, westMu0, wests20)
@@ -112,7 +112,8 @@ west_v_east <- rep(0,365)
 for(i in seq(1,365)) {
   west_dry_season[i] <- sum(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i )/length(output_yt[[3]][,2])
   east_dry_season[i] <- sum(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i )/length(output_yt[[6]][,2])
-  west_v_east[i] <- (sum(  (output_yt[[3]][,1] > i & output_yt[[6]][,1] <= i  ) | (output_yt[[3]][,2] <= i & output_yt[[6]][,2] > i ))) / length(output_yt[[3]][,1])
+  west_v_east[i] <- (sum( (!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i))&(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i ))) / nSim#(sum(!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i)))
+  # west_v_east[i] <- (sum(  (output_yt[[3]][,1] > i & output_yt[[6]][,1] <= i  ) | (output_yt[[3]][,2] <= i & output_yt[[6]][,2] > i ))) / length(output_yt[[3]][,1])
 }
 plot(west_dry_season,type="l",main = "Prop of Seattle Dry Season")
 plot(east_dry_season,type="l",main = "Prop of Columbia Plateau Dry Season")
@@ -129,7 +130,7 @@ west_v_east <- rep(0,365)
 for(i in seq(1,365)) {
   west_dry_season[i] <- sum(output_yt[[4]][,1] <= i & output_yt[[4]][,2] > i )/length(output_yt[[4]][,2])
   east_dry_season[i] <- sum(output_yt[[9]][,1] <= i & output_yt[[9]][,2] > i )/length(output_yt[[9]][,2])
-  west_v_east[i] <- (sum(  (output_yt[[4]][,1] > i & output_yt[[9]][,1] <= i  ) | (output_yt[[4]][,2] <= i & output_yt[[9]][,2] > i ))) / length(output_yt[[4]][,1])
+  west_v_east[i] <- (sum( (!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i))&(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i ))) / nSim
 }
 plot(west_dry_season,type="l",main = "Prop of Portland Dry Season")
 plot(east_dry_season,type="l",main = "Prop of Eastern Oregon Dry Season")
@@ -153,3 +154,8 @@ plot(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"
 points(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,2],kernel = "epanechnikov"),lty = 2,type="l")
 legend("topleft", c("Dry Start","Wet Start"),lty = c(1,2))
 
+plot(density(output_yt[[4]][,1]))
+points(density(output_yt[[9]][,1]))
+
+# 95% summer start date
+round(unlist(lapply( output_yt,function(x) {quantile(x[,1],.95)})))
