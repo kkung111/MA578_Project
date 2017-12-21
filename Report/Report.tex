@@ -19,8 +19,8 @@
 
 \begin{document}
 \title{Analysis of Precipitation in the Northwestern United States}
-\author{Matthew Wiens, Kelly Kung}
-\date{December 20, 2017}
+\author{Matthew Wiens\footnote{Lived in Seattle for 15 years}, Kelly Kung}
+\date{December 21, 2017}
 \maketitle
 \begin{abstract}
 
@@ -34,7 +34,7 @@ Residents and visitors to the Pacific Northwest (Oregon and Washington) notice a
 
 Widmann and Bretherton\footnote{M. Widmann and C. S. Bretherton. Validation of Mesoscale Precipitation in the NCEP Reanalysis Using a New Gridcell Dataset for the Northwestern United States. In Journal of Climate, 13(11), 1936-1950. 2000.} developed a methodology to control for local variation in topography and precipitation data and generated a dataset containing 46 years of estimated precipitation data in a 50km by 50km grid.  In comparison, general models of atmospheric weather operate on the order of hundreds of kilometers, so there is significant room to improve the spatial resolution of weather models.  In particular, local topographic features are not captured by general models, which is a limitation in regions like the Pacific Northwest. The temporal and spatial correlation is also highly dependent on the topography and are difficult to model, and therefore there has been a focus on parametrizing models and reducing the dimensionality. 
 
-In this report, we analyze the precipitation differences using a Bayesian approach for two reasons: first, to capture prior beliefs  from living in the area of one author, and second to be able to discuss distributions around complicated model parameters and probabilistic beliefs about the state of weather on a specific day of the year. Bayesian approaches for daily precipitation data are not new, for example in Olson and Kleiber's work.\footnote{B. Olson and W. Kleiber. Approximate Bayesian computation methods for daily spatiotemporalprecipitation occurrence simulation,Water Resour. Res., 53, 3352?3372,doi:10.1002/2016WR019741. 2017.} With a Bayesian approach, we hope to model (1) the beginning of dry and wet seasons and (2) the probability of precipitation in the different areas. These models will provide us with tools in order to further analyze and understand the precipitation patterns in the Northwest. 
+In this report, we analyze the precipitation differences using a Bayesian approach for two reasons: first, to capture prior beliefs  from living in the area of one author, and second to be able to discuss distributions around complicated model parameters and probabilistic beliefs about the state of weather on a specific day of the year. Bayesian approaches for daily precipitation data are not new, for example in Olson and Kleiber's work.\footnote{B. Olson and W. Kleiber. Approximate Bayesian computation methods for daily spatiotemporal precipitation occurrence simulation,Water Resour. Res., 53, 3352?3372,doi:10.1002/2016WR019741. 2017.} With a Bayesian approach, we hope to model (1) the beginning of dry and wet seasons and (2) the probability of precipitation in the different areas. These models will provide us with tools in order to further analyze and understand the precipitation patterns in the Northwest. 
 
 This report is organized as follows. In Section 2, we refine our goals with our analysis, which motivates the creation of several variables in our dataset, which is also outlined in the same section. In Section 3, we discuss the two models that we used in order to analyze the data.  We then begin our analysis of the dataset in Section 4, and in Section 5, we conclude our report with summaries of our analysis as well as potential future directions.
 
@@ -69,7 +69,7 @@ These zones are decided by considering average precipitation over the time perio
 \begin{figure}[h!]
 \centering
 \includegraphics[width = .4\textwidth, height = 6cm]{LabledTopography}
-\caption{Topography of the region }
+\caption{Topography of the Pacific Northwest, with the 9 areas indicated }
 \label{fig:topo}
 \end{figure}
 
@@ -139,15 +139,18 @@ In order to conduct Gibbs sampling, we need full conditionals of $\theta$ and $\
 %Maybe discuss first model here? It worked pretty well and informed future direction
 
 We further develop our analysis by considering the probability of precipitation on each day for the summer (dry) and winter (rainy) seasons. This is motivated by the idea of trying to plan outdoor activities in each area of the Pacific Northwest and deciding if there is value in traveling to a different area to escape rain.
-Therefore, the following model is proposed:
+Therefore, the following model is proposed based on the observed V shape of the probability of precipitation by day as in Figure \ref{fig:area4}:
 \begin{itemize}
 \item The data is binary data representing if it rained or not for each day of the year
 \item The probability of rain on the jth day of the year is given by the following piecewise linear function: $\pi_j = \theta_0 + (a * 1_{j < \theta^*} + b*1_{j>=\theta^*})(j - \theta^*)$
 \item $\theta_0$ can be interpreted as the chance of precipitation on the driest day of the year, $\theta^*$ is the day number of the driest day, and $a$ and $b$ are the slopes of the springtime daily change in precipitation chance, and fall daily change in precipitation chance, respectively
-\item The probability of observing precipitation is a Bernoulli random variable, with parameter $\pi_j$
+\item Observing precipitation on the $jth$ day of the year is a Bernoulli random variable, with parameter $\pi_j$
 \end{itemize}
 
-Furthermore, we note the wintertime (January - March) is has a constant, large chance of rain across the region, as seen in Figure \ref{fig:area4}, and therefore we choose to focus our analysis on the periods where this chance is changing.
+Furthermore, we note the wintertime (January - March) is has a constant, large chance of rain across the region, as seen in Figure \ref{fig:area4}, and therefore we choose to focus our analysis on the periods where this chance is changing. 
+We use weakly informative priors in this model: $\theta_0 \sim N(210,900)$,$\theta^* \sim \beta(5,20)$, $b \sim -a \sim N(.004,.002^2)$. These priors capture the prior beliefs that the driest days are around the end of July, and we're very sure they're within a two months on either side, and that the driest days have about a 20\% chance of rain. 
+The slopes follow from noting that the rainiest part of the year has about a 80\% chance of rain, and choosing a slope that appropriately interpolates the wettest and driest portions of the year, and choose the variance such that there is only a small chance that the sign of each portion of the slope is contrary to our expectations.
+The likelihood and full conditionals of the parameters for this model exist in closed form, however they are not informative, so we proceed to use a Metropolis MCMC algorithm to produce posterior distributions.
 
 \begin{figure}[h!]
 \centering
@@ -220,7 +223,7 @@ Region & Earliest Dry Season & Latest Wet Season & Length of Dry Season\\
 
 \subsection{Daily Precipitation Chance Model}
 
-The model described in section 3.2 was implemented with a Metropolis MCMC algorithm for each of the nine areas.  Each of the nine areas was again treated independently, because at the scale of which we defined the regions, there is minimal correlation in daily precipitation.  As expected, the driest day of the year in all the regions is in early August. All the regions on the west side of the Cascade Range had the driest day around day number 220, while those east of the mountains had the driest day around day number 230, which analogous to the results from the first model we explored and reported in Table \ref{tab:meanparams}. These posterior distributions are reported in Figure \ref{fig:driestDist}, and it highlights the clear difference between the two geographical areas. However, the chance of rain on the driest day of the year varied significantly more. In region 1, the temperate rainforest and coast, the minimum chance was 25\%, while in region 9, which contains part of the Great Basin and other steppe climates, the minimum chance was 6\%. The estimated chance of rain for each day and each region is reported in Figure \ref{fig:9by9}.
+The model described in section 3.2 was implemented with a Metropolis MCMC algorithm for each of the nine areas, with a thinning by a factor of 50 to reduce autocorrelation. Each of the nine areas was again treated independently, because at the scale of which we defined the regions, there is minimal correlation in daily precipitation.  As expected, the driest day of the year in all the regions is in early August. All the regions on the west side of the Cascade Range had the driest day around day number 220, while those east of the mountains had the driest day around day number 230, which analogous to the results from the first model we explored and reported in Table \ref{tab:meanparams}. These posterior distributions are reported in Figure \ref{fig:driestDist}, and it highlights the clear difference between the two geographical areas. However, the chance of rain on the driest day of the year varied significantly more. In region 1, the temperate rainforest and coast, the minimum chance was 25\%, while in region 9, which contains part of the Great Basin and other steppe climates, the minimum chance was 6\%. The estimated chance of rain for each day and each region is reported in Figure \ref{fig:9by9}.
 
 \begin{figure}
 \centering
@@ -231,7 +234,7 @@ The model described in section 3.2 was implemented with a Metropolis MCMC algori
 
 
 
-\begin{figure}
+\begin{figure}[h!]
 \centering
 \includegraphics[width = .8\textwidth, height = 12cm]{AllRegionPosterior}
 \caption{Data Points for each region, with mean estimate and 95\% credible interval for the observed chance of rain over 46 years. In most regions, approximately 95\% of the data is inside the credible interval, indicating a valid model}
@@ -241,7 +244,7 @@ Posterior estimates of the mean of the slopes are all between 0.003 and 0.006 fo
 
 \begin{figure}
 \centering
-\includegraphics[width = .4\textwidth, height = 6cm]{Model2EscapeSeattleRain}
+\includegraphics[width = .6\textwidth, height = 10cm]{Model2EscapeSeattleRain}
 \caption{Daily chance of escaping precipitation in Seattle. In blue, is the probability that that Region 6 will be dry given that Region 3 rains. In red, is the probability that Region 3 is rainy and Region 6 is dry}
 \label{fig:m2EscapeSeattle}
 \end{figure}
@@ -252,4 +255,19 @@ However, if one takes the perspective of a resort manager in the drier region, o
 This piecewise linear model gives additional insight into how the probability of precipitation changes throughout the year. It confirms the conclusion of the multivariate normal model outline in section 3.1, and shows how precipitation data of this sort yields the conclusions of the simpler model. 
 
 \section{Conclusion}
+
+In this report, we analyzed the precipitation in the Pacific Northwest by diving the area into 9 distinct regions and using 46 years of data with 30km by 30km resolution to approximate the region-wide precipitation.
+Two models were proposed to understand how the chance of precipitation changes over the year. In the first, we divide the year into a rainy season and a dry season, and model the changeover point as a proxy for residents' experience with the weather patterns. 
+Based on observed data, we proposed a semi-conjugate multivariable normal model for the changeover points. There was some correlation within regions, but assumed independence between regions. Subtle correlation between the regions, and within smaller subregions may be an avenue for further exploration with this data set.
+Within this model, we also explored how the duration of the dry season varied across the regions. The Oregon Coast and Cascade mountains had the longest dry season, and we suggested that this is due to the large difference between the winter and summer in precipitation chance, so even moderately dry weather is classified as the dry season. 
+The second model we proposed seeks to understand how the probability of precipitation changes throughout the year on a daily level, as opposed to describing broad yearly climatic patterns. This model proposes a constant rate of decrease in the probability of precipitation during the springtime, and also a constant rate of increase during autumn, with some minimum chance of rain in the summer.
+In this model, we found that the driest days of the year are earlier on western regions of the Pacific Northwest, however the eastern regions are drier overall, and also have a much drier summer. We also examined the opportunity for Seattle residents to escape rainy weather by traveling a short distance to the Columbia Plateau, and the model validates the tourism industry in the Columbia Plateau targeting Seattle residents. 
+
+These models could be extended to include local measures of correlation, and to find in which areas is precipitation locally correlated, and which neighboring areas have low correlation. For example, in the 100 miles east of Seattle, there are 3 distinct climatic areas, which likely have low correlation, however 100 miles of coastline may be strongly correlated.
+Further investigation is warranted into the weather patterns that cause all the regions east of the Cascade range to have a later driest day, and relatively drier weather later into the fall.
+
+
+
+
+ 
 \end{document}
