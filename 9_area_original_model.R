@@ -88,7 +88,9 @@ for(i in 1:(nSim+1000)){
   
   #prediction
   if(i > 1000) {
-  ytW<-rmv(1, thetaW, SigmaW)
+  yPred<-rmv(1, thetaW, SigmaW)
+  while(yPred<0){yPred<-rmv(1, thetaW, SigmaW)}
+  ytW<-yPred
   THW<-cbind(THW, thetaW)
   S2W<-cbind(S2W, c(SigmaW))
   YtW<-cbind(YtW, ytW)
@@ -106,13 +108,22 @@ output_yt[[k]] <- t(YtW)
 }
 #analysis
 
+
+seqLength<-seq(1, dim(output_yt[[1]])[1], 10)
+tempoutput_yt<-output_yt
+tempoutput_th<-output_th
+tempoutput_s2<-output_s2
+
+output_yt<-lapply(output_yt, function(x){x[seqLength,]})
+output_th<-lapply(output_th, function(x){x[seqLength,]})
+output_s2<-lapply(output_s2, function(x){x[seqLength,]})
 west_dry_season <- rep(0,365)
 east_dry_season <- rep(0,365)
 west_v_east <- rep(0,365)
-for(i in seq(1,365)) {
-  west_dry_season[i] <- sum(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i )/length(output_yt[[3]][,2])
-  east_dry_season[i] <- sum(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i )/length(output_yt[[6]][,2])
-  west_v_east[i] <- (sum( (!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i))&(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i ))) / nSim#(sum(!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i)))
+for(j in seq(1,365)) {
+  west_dry_season[j] <- sum(output_yt[[3]][,1] <= j & output_yt[[3]][,2] > j )/length(output_yt[[3]][,2])
+  east_dry_season[j] <- sum(output_yt[[6]][,1] <= j & output_yt[[6]][,2] > j )/length(output_yt[[6]][,2])
+  west_v_east[j] <- (sum( (!(output_yt[[3]][,1] <= j & output_yt[[3]][,2] > j))&(output_yt[[6]][,1] <= j & output_yt[[6]][,2] > j ))) / length(seqLength)#(sum(!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i)))
   # west_v_east[i] <- (sum(  (output_yt[[3]][,1] > i & output_yt[[6]][,1] <= i  ) | (output_yt[[3]][,2] <= i & output_yt[[6]][,2] > i ))) / length(output_yt[[3]][,1])
 }
 plot(west_dry_season,type="l",main = "Prop of Seattle Dry Season")
@@ -127,24 +138,24 @@ round(matrix(unlist(lapply(output_th,function(x) {apply(x,2,var)})),ncol=2,byrow
 west_dry_season <- rep(0,365)
 east_dry_season <- rep(0,365)
 west_v_east <- rep(0,365)
-for(i in seq(1,365)) {
-  west_dry_season[i] <- sum(output_yt[[4]][,1] <= i & output_yt[[4]][,2] > i )/length(output_yt[[4]][,2])
-  east_dry_season[i] <- sum(output_yt[[9]][,1] <= i & output_yt[[9]][,2] > i )/length(output_yt[[9]][,2])
-  west_v_east[i] <- (sum( (!(output_yt[[3]][,1] <= i & output_yt[[3]][,2] > i))&(output_yt[[6]][,1] <= i & output_yt[[6]][,2] > i ))) / nSim
+for(j in seq(1,365)) {
+  west_dry_season[j] <- sum(output_yt[[4]][,1] <= j & output_yt[[4]][,2] > j )/length(output_yt[[4]][,2])
+  east_dry_season[j] <- sum(output_yt[[9]][,1] <= j & output_yt[[9]][,2] > j )/length(output_yt[[9]][,2])
+  west_v_east[j] <- (sum( (!(output_yt[[4]][,1] <= j & output_yt[[4]][,2] > j))&(output_yt[[9]][,1] <= j & output_yt[[9]][,2] > j ))) / length(seqLength)
 }
 plot(west_dry_season,type="l",main = "Prop of Portland Dry Season")
 plot(east_dry_season,type="l",main = "Prop of Eastern Oregon Dry Season")
 plot(west_v_east,type="l",main = "Predictive Distribution: \nProbability of going East from Portland and going\n from rainy season to dry season",ylab = "Probability",xlab="Day of Year")
 # First/Last area
-start_dates <- matrix( unlist(lapply(output_yt,function(x) {x[,1]} )),nrow = nSim,ncol=9,byrow=F)
-table(apply(start_dates,1,which.min))/nSim
+start_dates <- matrix( unlist(lapply(output_yt,function(x) {x[,1]} )),nrow = length(seqLength),ncol=9,byrow=F)
+table(apply(start_dates,1,which.min))/length(seqLength)
   
-end_dates <- matrix( unlist(lapply(output_th,function(x) {x[,2]} )),nrow = nSim,ncol=9,byrow=F)
-table(apply(start_dates,1,which.max))/nSim
+end_dates <- matrix( unlist(lapply(output_yt,function(x) {x[,2]} )),nrow = length(seqLength),ncol=9,byrow=F)
+table(apply(start_dates,1,which.max))/length(seqLength)
 
 
 # Length
-summer_length <- matrix( unlist(lapply(output_yt,function(x) {x[,2]-x[,1]} )),nrow = nSim,ncol=9,byrow=F)
+summer_length <- matrix( unlist(lapply(output_yt,function(x) {x[,2]-x[,1]} )),nrow = length(seqLength),ncol=9,byrow=F)
 round(apply(summer_length,2,mean))
 round(sqrt(apply(summer_length,2,var)))
 
@@ -159,3 +170,18 @@ points(density(output_yt[[9]][,1]))
 
 # 95% summer start date
 round(unlist(lapply( output_yt,function(x) {quantile(x[,1],.95)})))
+
+#plot some of the acf plots
+par(mfrow=(c(2,2)))
+acf(tempoutput_th[[3]][,1], main = expression(paste("ACF for ", theta, " for Seattle Area")))
+acf(output_th[[3]][,1], main = expression(paste("ACF for Thinned ", theta, " for Seattle Area")))
+acf(tempoutput_s2[[3]][,1], main = expression(paste("ACF for ", Sigma, " for Seattle Area")))
+acf(output_s2[[3]][,1], main = expression(paste("ACF for Thinned ", Sigma, " for Seattle Area")))
+
+#effective size calculation
+effSizeth<-matrix(unlist(lapply(tempoutput_th, function(x){effectiveSize(x)})), ncol = 2, byrow = T)
+effSizes2<-matrix(unlist(lapply(tempoutput_s2, function(x){effectiveSize(x)})), ncol = 2, byrow = T)
+
+colMeans(effSizeth)
+colMeans(effSizes2)
+
