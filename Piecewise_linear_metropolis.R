@@ -8,9 +8,19 @@ library(coda)
 # this uses an intermediate result - i.e. a list of 9 [ list of 46 [vector of 275 T/F]]
 # Parameterize it by mindate,minval, a, b
 drop_days <-90
-data_met <- tf_data2[[6]]
-year_aggregates <-  apply(matrix(as.numeric(unlist(data_met)),ncol=365,byrow=T),2,sum)[(drop_days+1):365]
+mindate_all <- list(rep(0,9))
+minval_all<-list(rep(0,9))
+a_all <- list(rep(0,9))
+b_all <- list(rep(0,9))
+obsrain_all <- list(rep(0,9))
+prain_all <- list(rep(0,9))
+posterior_means <- matrix(nrow=9,ncol=4)
 
+
+
+for (l in seq(1,9)){
+  data_met <- tf_data2[[l]]
+  year_aggregates <-  apply(matrix(as.numeric(unlist(data_met)),ncol=365,byrow=T),2,sum)[(drop_days+1):365]
 #priors
 mindate_mean <- mindate <- 210-drop_days
 mindate_sd <- 30
@@ -22,7 +32,7 @@ b_mean <- b <- .6/150
 b_sd <- abs(b_mean)/2
 minval <- minval_a / (minval_a + minval_b)
 
-S <- 4000
+S <- 10000
 MINDATE <- MINVAL <- A <- B <- rep(0,S)
 OBSRAIN <- PRAIN <- matrix(ncol=365-drop_days,nrow=S)
 accept_probs <- rep(0,S+500)
@@ -93,7 +103,16 @@ points(seq(drop_days+1,365),prob_by_day(mean(MINDATE),mean(MINVAL),mean(A),mean(
 points(seq(drop_days+1,365),apply(OBSRAIN,2,quantile,.975),type="l",col="red")
 points(seq(drop_days+1,365),apply(OBSRAIN,2,quantile,.025),type="l",col="red")
 
+mindate_all[[l]] <- MINDATE
+minval_all[[l]] <- MINVAL
+a_all[[l]] <- A
+b_all[[l]] <- B
+obsrain_all[[l]] <- OBSRAIN
+prain_all[[l]] <- PRAIN
+posterior_means[l,] <- c(mean(MINDATE),mean(MINVAL),mean(A),mean(B))
 
+
+}
 #Ad hoc stuff
 #prain3 <- PRAIN
 #prain6 <- PRAIN
@@ -111,12 +130,45 @@ for(k in 1:(365-drop_days)){
 plot(seq(drop_days+1,365) , p_escape_rain , xlab = "day of year",ylab = "Probability of Escaping Rain",main = "Daily Chance that Area 3 rains and Area 6 is Dry") 
 
 #7 constant days of rain
-week_of_rain = rep(0,365-drop_days-7)
-for(k in 1:(365-drop_days-7)){
-  week_of_rain[k] <- mean(sapply(prain3[,k],rbinom,n=1,size=1)*sapply(prain3[,k+1],rbinom,n=1,size=1)
-  *sapply(prain3[,k+2],rbinom,n=1,size=1)
-  *sapply(prain3[,k+3],rbinom,n=1,size=1)
-  *sapply(prain3[,k+4],rbinom,n=1,size=1)
-  *sapply(prain3[,k+5],rbinom,n=1,size=1)
-  *sapply(prain3[,k+6],rbinom,n=1,size=1))
+#week_of_rain = rep(0,365-drop_days-7)
+#for(k in 1:(365-drop_days-7)){
+#  week_of_rain[k] <- mean(sapply(prain3[,k],rbinom,n=1,size=1)*sapply(prain3[,k+1],rbinom,n=1,size=1)
+#  *sapply(prain3[,k+2],rbinom,n=1,size=1)
+#  *sapply(prain3[,k+3],rbinom,n=1,size=1)
+#  *sapply(prain3[,k+4],rbinom,n=1,size=1)
+#  *sapply(prain3[,k+5],rbinom,n=1,size=1)
+#  *sapply(prain3[,k+6],rbinom,n=1,size=1))
+#}
+
+#plot dist of all niceest days
+
+library(ggplot2)
+plt_df <- data.frame(region = rep("1",512),DayOfYear = density(mindate_all[[1]]+drop_days,adjust = 1.5)$x,Density = density(mindate_all[[1]]+drop_days,adjust = 1.5)$y)
+for(l in seq(2,9)){
+  plt_df <- rbind(plt_df,data.frame(region = rep(paste(l),512),DayOfYear = density(mindate_all[[l]]+drop_days,adjust = 1.5)$x,Density = density(mindate_all[[l]]+drop_days,adjust = 1.5)$y))
 }
+
+ggplot(data=plt_df, aes(x=DayOfYear, y=Density, group=region) ) +geom_line(aes(color=region)) + ggtitle("Posterior Distributions of the Nicest Day of the Year")
+
+
+par(mfrow = c(3,3))
+for (l in 1:9) {
+  plot(seq(drop_days+1,365),apply(matrix(as.numeric(unlist(tf_data2[[l]])),ncol=365,byrow=T),2,sum)[(drop_days+1):365]/46,ylab = "Probability of Rain",xlab = "Day of Year",main = paste("Region",l))
+  points(seq(drop_days+1,365),prob_by_day(mean(mindate_all[[l]]),mean(minval_all[[l]]),mean(a_all[[l]]),mean(b_all[[l]])),type="l")
+  points(seq(drop_days+1,365),apply(obsrain_all[[l]],2,quantile,.975),type="l",col="red")
+  points(seq(drop_days+1,365),apply(obsrain_all[[l]],2,quantile,.025),type="l",col="red")
+}
+par(mfrow = c(1,1))
+ 
+#Escape Seattle Rain
+escape_p <- seq(1,365-drop_days)
+num_escape <- seq(1,365-drop_days)
+for( i in seq(1,365-drop_days)){
+  searain <- rbinom(length(prain_all[[3]][,i]),1,prain_all[[3]][,i])
+  eastdry <- rbinom(length(prain_all[[3]][,i]),1,1-prain_all[[6]][,i])
+  escape_p[i] <-  sum(searain*eastdry)/sum(searain)
+  num_escape[i] <- sum(searain*eastdry)/length(searain*eastdry)
+}
+plot(seq(drop_days+1,365),escape_p,ylim = c(0,1),col="blue",cex=.5,xlab = "Day Of Year",ylab = "Probability",main = "Escaping Seattle Rain",pch=16)
+points(seq(drop_days+1,365),num_escape,col="red",cex=.5,pch=16)
+legend("topright",legend = c("Given Rain in Seattle","Unconditional Probability"),col = c("blue","red"),cex = .5,pch=c(16,16))
