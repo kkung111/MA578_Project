@@ -110,7 +110,7 @@ To determine the prior parameters, we let $\mu_0 = \begin{bmatrix} X_{min} \\ X_
 \hline
 \textbf{1} & \textbf{2} & \textbf{3} & \textbf{4} & \textbf{5}\\
 \hline
-$\left[ \begin{array}{cc} 1033.00 & -254.79  \\ -254.79 & 562.52 \end{array}\right]$ & $\left[ \begin{array}{cc} 652.62 & 32.22 \\ 32.22 & 307.61  \end{array}\right]$ & $\left[ \begin{array}{cc} 1103.09 & -35.55 \\ -35.55 & 860.19  \end{array}\right]$ & $\left[ \begin{array}{cc} 661.74 & 17.54 \\ 17.54 & 197.88  \end{array}\right]$ & $\left[ \begin{array}{cc} 943.12 & 67.83 \\ 67.83 & 524.46  \end{array}\right]$ \\
+$\left[ \begin{array}{cc} 1154.93 & 179.97  \\ 179.97 & 618.95 \end{array}\right]$ & $\left[ \begin{array}{cc} 658.26 & 134.48 \\ 134.48 & 423.75  \end{array}\right]$ & $\left[ \begin{array}{cc} 1006.46 & 115.78 \\ 115.78 & 434.10  \end{array}\right]$ & $\left[ \begin{array}{cc} 1000.96 & 87.99 \\ 87.99 & 575.44  \end{array}\right]$ & $\left[ \begin{array}{cc} 993.37 & 236.99 \\ 236.99 & 405.11  \end{array}\right]$ \\
 \hline
 \end{tabular}
 
@@ -120,7 +120,7 @@ $\left[ \begin{array}{cc} 1033.00 & -254.79  \\ -254.79 & 562.52 \end{array}\rig
 \hline
 \textbf{6} & \textbf{7} & \textbf{8} & \textbf{9}\\
 \hline
-$\left[ \begin{array}{cc} 162.92 & -15.51 \\ -15.51 & 108.72  \end{array}\right]$ & $\left[ \begin{array}{cc} 778.02 & -17.29 \\ -17.29 & 99.43  \end{array}\right]$ & $\left[ \begin{array}{cc} 1097.19 & 58.49 \\ 58.49 & 76.20  \end{array}\right]$ & $\left[ \begin{array}{cc} 288.11 & -15.03 \\ -15.03 & 12.34  \end{array}\right]$ \\
+$\left[ \begin{array}{cc} 2943.59 & 630.29 \\ 630.29 & 728.15  \end{array}\right]$ & $\left[ \begin{array}{cc} 3574.88 & 884.72 \\ 884.72 & 874.46  \end{array}\right]$ & $\left[ \begin{array}{cc} 2221.71 & 210.85 \\ 210.85 & 500.14  \end{array}\right]$ & $\left[ \begin{array}{cc} 1974.74 & 250.49 \\ 250.49 & 684.75  \end{array}\right]$ \\
 \hline
 \end{tabular}
 \caption{Table of prior $\Sigma_0$ values for each area group}
@@ -152,9 +152,9 @@ Therefore, the following model is proposed:
 \item Let $y_j$ be the data on day \textit{j}. Then $p(y_j) = \pi_w  1_{j < \theta_1} + \pi_d  1_{\theta_1\leq j < \theta_2} +\pi_w  1_{j \geq \theta_2} $
 \end{itemize}
 
-\section{Analysis}
+\section{Analysis and Discussion}
 \subsection{Multivariate Normal Model}
-Using the semi-conjugate multivariate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions of $\theta$ and $\Sigma$ as well as the posterior predictive distribution $\begin{bmatrix} X_{min} \\ X_{max} \end{bmatrix}  \sim MVN(\theta, \Sigma)$. However, when using the Gibbs sampler, we needed to take into account of the dependencies of the Markov Chains. This is important because issues may arise if the chain is stuck in one area of the distribution because of the previous sample. To account for these dependencies, we ran 20,000 simulations in order to obtain high effective sizes. On average, the effective sizes were: $\theta_{X_{min}} : 10,795,  \theta_{X_{max}}: 7,229, \Sigma_{X_{min}}: 11,286, \Sigma_{X_{max}}: 8,906$. We then examined the autocorrelation plots and saw that it was fairly high, especially for the lag periods of 1 and 2 iterations. To resolve this issue, we thinned out the data by taking every tenth entry which resulted in 2,000 sampled values. Figure \ref{acfPlot} shows the autocorrelation plots before and after thinning the data. We then analyzed the data using this thinned out dataset.
+Using the semi-conjugate multivariate normal model described in section 3.1, we used a Gibbs sampler to generate samples from the posterior distributions of $\theta$ and $\Sigma$ as well as the posterior predictive distribution $\begin{bmatrix} X_{min} \\ X_{max} \end{bmatrix}  \sim MVN(\theta, \Sigma)$. When drawing samples from the posterior predictive distribution, we used the bound: $(X_{min} ,X_{max} \epsilon (0,365)$ to ensure that the sampled data points represents dates in a year. Because we used Gibbs sampler, we needed to take into account of the dependencies of the Markov Chains. This is important because issues may arise if the chain is stuck in one area of the distribution because of the previous sample. To account for these dependencies, we ran 20,000 simulations in order to obtain high effective sizes. On average, the effective sizes were: $\theta_{X_{min}} : 10,795,  \theta_{X_{max}}: 7,229, \Sigma_{X_{min}}: 11,286, \Sigma_{X_{max}}: 8,906$. We then examined the autocorrelation plots and saw that it was fairly high, especially for the lag periods of 1 and 2 iterations. To resolve this issue, we thinned out the data by taking every tenth entry which resulted in 2,000 sampled values. Figure \ref{acfPlot} shows the autocorrelation plots before and after thinning the data. We then analyzed the data using this thinned out dataset.
 
 \begin{figure}[H]
 \includegraphics[width = .6\textwidth, height = 7cm]{acfplots}
@@ -162,13 +162,7 @@ Using the semi-conjugate multivariate normal model described in section 3.1, we 
 \label{acfPlot}
 \end{figure}
 
-We report summary statistics of the parameters of the posterior predictive distribution in Table \ref{tab:meanparams}.  In particular we note the increased %increased seems to be used weirdly here
-variability of the start of the dry season between regions and the variance within each region. On the other hand, the end date of the dry season is much more consistent within and across regions. This suggests larger weather patterns triggering the end of the dry season, which are consistent between years.  
-
-Using the predictive posterior sample, we generated probabilities that an area has the earliest dry season and latest wet season in a given year. The probabilities are shown in Table \ref{lengthProb}. Looking at the probabilities, we see that the Columbia Plateau and Selkirk Mountains are most likely to have the earliest dry season. This aligns with the climate of the area since the Columbia Plateau is somewhat arid because of the rain shadow of the Cascade Mountains (but selkirk is wet?). However, it is interesting because both areas are quite far from each other, which suggests that the precipitation patterns do vary because surrounding areas  This aligns with the climate of the two areas: the Columbia Plateau has a somewhat arid climate because of the rain shadow of the Cascade Mountains
-
-Also of interest is the beginning of dry, summer weather across the Pacific Northwest. %In Table \ref{95pctsummer} we report the 95th percentile of the beginning of summer. For regions 3 and 4, which include Seattle and Portland, this date is around the 4th of July weekend, which agrees with common beliefs in the area that one cannot count on summer to begin until then. 
-In addition, a very likely beginning of the dry season is later in the generally drier, Eastern part of the region. This may be due to the drier nature of that region, so distinctly different weather patterns may not develop until later in the summer. 
+We report summary statistics of $\theta$, the posterior mean of the start date of the dry and west seasons, in Table \ref{tab:meanparams}.  In particular we note the variability in the mean start dates of the dry season between the regions, which ranges from 149 - 162, and the increase in the mean start as we move towards the eastern regions. On the other hand, the end date of the dry season is much more consistent within and across regions, ranging from 180 to 189. This suggests larger weather patterns triggering the end of the dry season, which are consistent between years. %expand on this last though? 
 
 \begin{table}[h!]
 \begin{tabular}{|l|c|c|c|c|}
@@ -176,20 +170,27 @@ In addition, a very likely beginning of the dry season is later in the generally
 Region & Start Date Mean & Start Date Variance & End Date Mean & End Date Variance\\
 \hline
 \hline
-1&152&24&280&18\\
-2&149&19&288&16\\
-3&153&22&284&14\\
-4&154&24&282&21\\
+1&152&24&280&17\\
+2&149&20&288&18\\
+3&153&22&284&15\\
+4&154&23&282&22\\
 5&153&17&289&12\\
-6&158&30&283&26\\
-7&158&30&284&26\\
-8&162&25&289&22\\
-9&160&28&284&29\\
+6&158&30&283&27\\
+7&158&28&284&28\\
+8&162&25&289&20\\
+9&160&26&284&30\\
 \hline
 \end{tabular}
-\caption{Posterior Mean and Variance of mean parameter}
+\caption{Posterior Mean and Variance of $\theta$}
 \label{tab:meanparams}
 \end{table}
+
+Using the predictive posterior sample, we generated probabilities that an area has the earliest dry season and latest wet season in a given year. The probabilities are shown in Table \ref{lengthProb}. Looking at the probabilities, we see that the Columbia Plateau and Selkirk Mountains are most likely to have the earliest dry season. This aligns with the climate of the area since the Columbia Plateau is somewhat arid because of the rain shadow of the Cascade Mountains (but selkirk is wet?). However, it is interesting because both areas are quite far from each other (approximately 400 km), which suggests that the precipitation patterns do vary because surrounding areas are not as likely to have the earliest dry season. Looking at the lengths of the dry season in Table \ref{lengthProb}, there is quite some variability, with a difference of 20 days of the longest and shortest periods The Oregon Coastline and Cascade Range have the longest dry season while the Eastern Oregon area has the shortest dry season. %Matthew-- does this make sense? after research, it seems that high desert and great basin should have pretty arid climate 
+
+Also of interest is the beginning of dry, summer weather across the Pacific Northwest. %In Table \ref{95pctsummer} we report the 95th percentile of the beginning of summer. For regions 3 and 4, which include Seattle and Portland, this date is around the 4th of July weekend, which agrees with common beliefs in the area that one cannot count on summer to begin until then. 
+In addition, a very likely beginning of the dry season is later in the generally drier, Eastern part of the region. This may be due to the drier nature of that region, so distinctly different weather patterns may not develop until later in the summer. 
+
+
 
 \begin{comment}
 \begin{table}[h!]
@@ -220,18 +221,18 @@ Region & Day of Year \\
 Region & Earliest Dry Season & Latest Wet Season & Length of Dry Season\\
 \hline
 \hline
-1&0.091&0.074&127 \\
-2&0.076&0.036&139 \\
-3&0.076&0.073&129 \\
-4&0.087&0.079&130\\
-5&0.068&0.057&138 \\
-6&0.193&0.193&127\\
-7&0.198&0.190&128\\
-8&0.094&0.147&127\\
-9&0.119&0.151&123\\
+1&0.099&0.074&129 \\
+2&0.074&0.032&138 \\
+3&0.091&0.057&122 \\
+4&0.087&0.081&127\\
+5&0.073&0.068&136 \\
+6&0.180&0.198&123\\
+7&0.179&0.200&121\\
+8&0.109&0.145&129\\
+9&0.110&0.147&119\\
 \hline
 \end{tabular}
-\caption{Area with probabilities of earliest and latest start times as well as length of dry season. }
+\caption{Area with probabilities of earliest and latest start times as well as length of dry season }
 \label{lengthProb}
 \end{table}
 
