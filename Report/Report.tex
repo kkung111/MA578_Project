@@ -75,7 +75,7 @@ These zones are decided by considering average precipitation over the time perio
 
 
 \subsection{Indicators for Dry and Wet Season}
-Using the area groups and daily precipitation indicators, mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we create an algorithm that chooses indicators of start days for  the dry season ($X_{min}$) and wet season ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season, with the weights determined by the overall prevalence of dry and wet days. I.e., if there are only a few dry days in the year, such as in area 1, the algorithm puts more weight on classifying the dry days correctly. For example, we expect $X_{min}$ to be approximately 170 and $X_{max}$ to be approximately 260 because these dates correspond to the beginning of summer and the beginning of autumn. Using this algorithm, we find the start dates for the dry and wet seasons for each region for the 46 years.
+Using the area groups and daily precipitation indicators, mentioned in Section \ref{GroupArea}, we then proceeded to create indicators of when the dry season and wet season starts. To do this, we create an algorithm that chooses indicators of start days for  the dry season ($X_{min}$) and wet season ($X_{max}$) such that it maximizes the number of \textit{dry} days in the dry season and maximizes the number of \textit{wet} days in the wet season, with weights determined by the overall prevalence of dry and wet days. I.e., if there are only a few dry days in the year, such as in region 1, the algorithm puts more weight on classifying the dry days correctly. For example, we expect $X_{min}$ to be approximately 170 and $X_{max}$ to be approximately 260 because these dates correspond to the beginning of summer and the beginning of autumn. Using this algorithm, we find the start dates for the dry and wet seasons for each region for the 46 years.
 
 
 \section{Modeling}
@@ -242,7 +242,7 @@ The model described in section 3.2 was implemented with a Metropolis MCMC algori
 \end{figure}
 Posterior estimates of the mean of the slopes are all between 0.003 and 0.006 for the fall, and the negative, but the same range for the springtime. The natural interpretation is that for each day that passes, the probability of rain changes by 0.3\% to 0.6\%. However, there is little correlation of the means (-0.07) between how dry the driest day is, and how rapidly the chance of precipitation changes. We suspect that this is due to the variety of topographical features that obscure any correlation. 
 
-\begin{figure}[H]
+\begin{figure}
 \centering
 \includegraphics[width = .6\textwidth, height = 10cm]{Model2EscapeSeattleRain}
 \caption{Daily chance of escaping precipitation in Seattle. In blue, is the probability that that Region 6 will be dry given that Region 3 rains. In red, is the probability that Region 3 is rainy and Region 6 is dry}
