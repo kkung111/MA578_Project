@@ -24,7 +24,6 @@ westCov<-cov(west)
 
 
 
-
 #find the prior means
 westMinMu0<-170
 westMaxMu0<-260
@@ -89,7 +88,7 @@ for(i in 1:(nSim+1000)){
   #prediction
   if(i > 1000) {
   yPred<-rmv(1, thetaW, SigmaW)
-  while(yPred<0){yPred<-rmv(1, thetaW, SigmaW)}
+  while(yPred[1]<0 | yPred[2]>365){yPred<-rmv(1, thetaW, SigmaW)}
   ytW<-yPred
   THW<-cbind(THW, thetaW)
   S2W<-cbind(S2W, c(SigmaW))
@@ -161,7 +160,7 @@ round(sqrt(apply(summer_length,2,var)))
 
 
 #plot Seattle Data
-plot(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,1],kernel = "epanechnikov"),lty = 1,xlim=c(1,365),main = "Area 4 Data Distribution",xlab = "Day of Year",ylim = c(0,1/50))
+plot(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,1],kernel = "epanechnikov"),lty = 1,xlim=c(1,365),main = "Region 4 Data Distribution",xlab = "Day of Year",ylim = c(0,1/50))
 points(density(as.matrix(read.table(paste("Area",4,"MinMaxDataV2.tsv"), sep = "\t"))[,2],kernel = "epanechnikov"),lty = 2,type="l")
 legend("topleft", c("Dry Start","Wet Start"),lty = c(1,2))
 
